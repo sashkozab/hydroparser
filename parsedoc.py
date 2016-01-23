@@ -11,17 +11,16 @@ import tkinter as tk
 
 def walkingDead(pathToFiles='.'):
     for folder in os.listdir(pathToFiles):
-    	folderInteger = int(folder)
-    	print ("--",folderInteger)
-    	for dirPath, dirs, files in os.walk(os.path.join(pathToFiles,folder)):
-    		for fileSingle in files:
-    		    if fileSingle[-4:] == 'xlsx':
-    		        for gen in parseXLSX(os.path.join(dirPath,fileSingle),folderInteger)
+        folderInteger = int(folder)
+        print ("--",folderInteger)
+        for dirPath, dirs, files in os.walk(os.path.join(pathToFiles,folder)):
+            for fileSingle in files:
+                if fileSingle[-4:] == 'xlsx':
+                    for gen in parseXLSX(os.path.join(dirPath,fileSingle),folderInteger):
                         yield gen
-    		    else:
-    		        for gen in parseDoc(os.path.join(dirPath,fileSingle),folderInteger):
-    		            yield gen
-
+                else:
+                    for gen in parseDoc(os.path.join(dirPath,fileSingle),folderInteger):
+        	            yield gen  
 
 def parseDoc(filename, year):
     with open(filename, 'rb') as f:
@@ -30,9 +29,9 @@ def parseDoc(filename, year):
         for r in f:
             if " р." in r.decode('ibm866') or re.search('[Кк]анал',r.decode('ibm866')):
                 try:
-                    postName = r.decode('ibm866')[r.decode('ibm866').index(" р."):].rstrip().replace(' ','')
+                    postName = r.decode('ibm866')[r.decode('ibm866').index(" р.")+1:].rstrip()
                 except ValueError:
-                    postName = r.decode('ibm866')[r.decode('ibm866').index("анал"):].rstrip().replace(' ','')
+                    postName = r.decode('ibm866')[r.decode('ibm866').index("анал"):].rstrip()
                 try:
                     postIndex = int((re.search('[0-9]{5}',r.decode('ibm866'))).group(0))
                 except AttributeError:
@@ -48,49 +47,67 @@ def parseDoc(filename, year):
                             yield (mainKey,li,year,postIndex)
                 else:
                     for mainKey in jsonData:
-                        if postName in jsonData[mainKey]:
+                        if postName.replace(' ','') in jsonData[mainKey] or postName in jsonData[mainKey]:
+                            #postName = postName.replace(' ','')
                             yield (mainKey,li,year,postIndex)
 
-def parseXLSX(filename):
+def parseXLSX(filename,year):
     wb = openpyxl.load_workbook(filename)
-    sheet = wb.worksheets[5]
-    for i in range(1,sheet.get_highest_row()+1):
-        #print (sheet.cell(row=i,column=1).value)
-        try:
-            if " р." in sheet.cell(row=i,column=1).value or re.search('[Кк]анал', sheet.cell(row=i,column=1).value):
-                try:
-                    postName = sheet.cell(row=i,column=1).value[sheet.cell(row=i,column=1).value.index(" р."):].rstrip().replace(' ','')
-                except ValueError:
-                    postName = sheet.cell(row=i,column=1).value[sheet.cell(row=i,column=1).value.index("анал"):].rstrip().replace(' ','')
-                try:
-                    postIndex = int((re.search('[0-9]{5}',sheet.cell(row=i,column=1).value)).group(0))
-                except AttributeError:
-                    postIndex = None
-                li = [sheet.cell(row=i+4,column=x).value for x in range(4,16) ]
-                #li = [float(sheet.cell(row=i+4,column=x).value) if re.search("\d+?\.\d+?", sheet.cell(row=i+4,column=x).value) is not None else "" for x in range(4,16) ]
-                print (postName,postIndex)
-                print (li)
-                # print (float(sheet.cell(row=i+4,column=4).value))
-                # print (re.search("\d+?\.\d+?", sheet.cell(row=i+4,column=4).value))
-        except TypeError:
-            pass
+    print (filename)
+    try:
+        sheet = wb.worksheets[5]
+    except IndexError:
+        for name in wb.get_sheet_names():
+            sheet = wb.get_sheet_by_name(name)
+            if re.search('[тТ]аблиц[ая] ?1.12',sheet.cell(row=1,column=1).value):break
+            else:sheet = None
+    if sheet:
+        for i in range(1,sheet.get_highest_row()+1):
+            #print (sheet.cell(row=i,column=1).value)
+            try:
+                if " р." in sheet.cell(row=i,column=1).value or re.search('[Кк]анал', sheet.cell(row=i,column=1).value):
+                    try:
+                        postName = sheet.cell(row=i,column=1).value[sheet.cell(row=i,column=1).value.index(" р.")+1:].rstrip()
+                    except ValueError:
+                        postName = sheet.cell(row=i,column=1).value[sheet.cell(row=i,column=1).value.index("анал"):].rstrip()
+                    try:
+                        postIndex = int((re.search('[0-9]{5}',sheet.cell(row=i,column=1).value)).group(0))
+                    except AttributeError:
+                        postIndex = None
+                    li = [sheet.cell(row=i+4,column=x).value for x in range(4,16) ]
+                    #li = [float(sheet.cell(row=i+4,column=x).value) if re.search("\d+?\.\d+?", sheet.cell(row=i+4,column=x).value) is not None else "" for x in range(4,16) ]
+                    print (postName,postIndex)
+                    print (li)
+                    if postIndex:
+                        for mainKey in jsonData:
+                            if postIndex == jsonData[mainKey][0]:
+                                yield (mainKey,li,year,postIndex)
+                    else:
+                        for mainKey in jsonData:
+                            if postName.replace(' ','') in jsonData[mainKey] or postName in jsonData[mainKey]:
+                                #postName = postName.replace(' ','')
+                                yield (mainKey,li,year,postIndex)
+                    # print (float(sheet.cell(row=i+4,column=4).value))
+                    # print (re.search("\d+?\.\d+?", sheet.cell(row=i+4,column=4).value))
+            except TypeError:
+                pass
 
 
 def updateXLS(sheetYearData, XLSfile):                       # sheetYearData  must be a generator
-	wb = openpyxl.load_workbook(XLSfile)
-	for row in sheetYearData:
-	    sheet = wb.get_sheet_by_name(row[0])
-	    # allSheetes = wb.get_sheet_names()
-	    # print (allSheetes)
-	    for index in range(5,sheet.get_highest_row()+1):
-	    	yearOfSheet = sheet.cell(row=index, column=1).value
-	    	if yearOfSheet == row[2]:
-	    		for i in range(len(row[1])):
+    wb = openpyxl.load_workbook(XLSfile)
+    for row in sheetYearData:
+        sheet = wb.get_sheet_by_name(row[0])
+        # allSheetes = wb.get_sheet_names()
+        # print (allSheetes)
+        for index in range(5,sheet.get_highest_row()+1):
+            yearOfSheet = sheet.cell(row=index, column=1).value
+            if yearOfSheet == row[2]:
+                for i in range(len(row[1])):
                     try:
-	    			    sheet.cell(row=index, column=i+2).value = float(row[1][i])
+                        sheet.cell(row=index, column=i+2).value = float(row[1][i])
                     except ValueError:
                         sheet.cell(row=index, column=i+2).value = row[1][i]
-	wb.save(XLSfile)
+    wb.save(XLSfile)
 
 def updateIndexXLS(jsonData, XLSfile):
     wb = openpyxl.load_workbook(XLSfile)
