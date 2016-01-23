@@ -8,35 +8,19 @@ import json
 from tkinter import filedialog
 import tkinter as tk
 
-#pathToFiles = "/home/sashko/Main/Tanusha/Toconvert/Files"
-# def choseFile():
-#     while True:
-#         try:
-#         	pathToFiles = sys.argv[1]
-#         	return pathToFiles
-#         except IndexError:
-#         	print ("Working with the same folder where the script is.")
-#         except FileNotFoundError:
-#             print "Please,chose a correct PATH to files,or just press 'ENTER' to work with the same folder where the script is!"
 
 def walkingDead(pathToFiles='.'):
-	# try:
-	# 	generalPathToFiles = os.listdir(pathToFiles)
-	# except FileNotFoundError:
-	# 	print "Please,chose a correct PATH to files,or just press 'ENTER' to work with the same folder where the script is!"
-	# 	generalPathToFiles = choseFile()
     for folder in os.listdir(pathToFiles):
     	folderInteger = int(folder)
     	print ("--",folderInteger)
     	for dirPath, dirs, files in os.walk(os.path.join(pathToFiles,folder)):
     		for fileSingle in files:
-    		    if fileSingle[-3:] == 'xls' or fileSingle[-4:] == 'xlsx':
-    		        print ('---PASS',fileSingle)
+    		    if fileSingle[-4:] == 'xlsx':
+    		        for gen in parseXLSX(os.path.join(dirPath,fileSingle),folderInteger)
+                        yield gen
     		    else:
     		        for gen in parseDoc(os.path.join(dirPath,fileSingle),folderInteger):
     		            yield gen
-
-
 
 
 def parseDoc(filename, year):
@@ -67,7 +51,7 @@ def parseDoc(filename, year):
                         if postName in jsonData[mainKey]:
                             yield (mainKey,li,year,postIndex)
 
-def parseXLS(filename):
+def parseXLSX(filename):
     wb = openpyxl.load_workbook(filename)
     sheet = wb.worksheets[5]
     for i in range(1,sheet.get_highest_row()+1):
@@ -146,6 +130,6 @@ if __name__ == "__main__":
         #updateXLS(parseDoc("Tabl1.12 sivDon"),2008,"Seredniomisyachna_temper_vodi.xlsx","СівДон-Печ")
         # parseDoc("T78281.V3")
         # parseDoc("Tabl1.12 sivDon")
-    parseXLS('/home/sashko/Python3/Programming/parseDataFromDoc/Files/2012/2012_V3_T_1_8_9_10_11_12_13_14.xlsx')
+    #parseXLSX('/home/sashko/Python3/Programming/parseDataFromDoc/Files/2012/2012_V3_T_1_8_9_10_11_12_13_14.xlsx')
     print("Goodbye!Exit.")
 
