@@ -11,7 +11,10 @@ import tkinter as tk
 
 def walkingDead(pathToFiles='.'):
     for folder in os.listdir(pathToFiles):
-        folderInteger = int(folder)
+        try:
+            folderInteger = int(folder)
+        except ValueError:
+            folderInteger = None
         print ("--",folderInteger)
         for dirPath, dirs, files in os.walk(os.path.join(pathToFiles,folder)):
             for fileSingle in files:
@@ -20,47 +23,102 @@ def walkingDead(pathToFiles='.'):
                         yield gen
                 else:
                     for gen in parseDoc(os.path.join(dirPath,fileSingle),folderInteger):
-        	            yield gen  
+                        yield gen  
 
 def parseDoc(filename, year):
     with open(filename, 'rb') as f:
         flag = False
         postName = ''
+        mark = False
+        counter = 0
         for r in f:
-            if " р." in r.decode('ibm866') or re.search('[Кк]анал',r.decode('ibm866')):
-                try:
-                    postName = r.decode('ibm866')[r.decode('ibm866').index(" р.")+1:].rstrip()
-                except ValueError:
-                    postName = r.decode('ibm866')[r.decode('ibm866').index("анал"):].rstrip()
-                try:
-                    postIndex = int((re.search('[0-9]{5}',r.decode('ibm866'))).group(0))
-                except AttributeError:
-                    postIndex = None
-                flag = True
-            if re.search('[Сс]е?редн.',r.decode('ibm866')) and flag:
-                li = [x for x in r.decode('ibm866').lstrip().split()[1:13]]
-                #li = [float(x) if re.match("^\d+?\.\d+?$", x) is not None else "" for x in r.decode('ibm866').lstrip().split()[1:13]]
-                flag = False
-                if postIndex:
-                    for mainKey in jsonData:
-                        if postIndex == jsonData[mainKey][0]:
-                            yield (mainKey,li,year,postIndex)
+            if not mark:
+                if not re.search('[Тт]аблиц[ая] ?1.12',r.decode('ibm866')) and not re.search('[Тт]емпература вод[иы]',r.decode('ibm866')):
+                    counter += 1
+                    if counter == 4:break
+                    continue
                 else:
-                    for mainKey in jsonData:
-                        if postName.replace(' ','') in jsonData[mainKey] or postName in jsonData[mainKey]:
-                            #postName = postName.replace(' ','')
-                            yield (mainKey,li,year,postIndex)
+                    if not year:
+                        try:
+                            year = int((re.search(r'[0-9]{4}',r.decode('ibm866'))).group(0))
+                        except AttributeError:
+                            pass
+                        except TypeError:
+                            pass
+                    mark = True
+            else:
+                if " р." in r.decode('ibm866') or re.search('[Кк]анал',r.decode('ibm866')):
+                    try:
+                        postName = r.decode('ibm866')[r.decode('ibm866').index(" р.")+1:].rstrip()
+                    except ValueError:
+                        postName = r.decode('ibm866')[r.decode('ibm866').index("анал"):].rstrip()
+                    try:
+                        postIndex = int((re.search('[0-9]{5}',r.decode('ibm866'))).group(0))
+                    except AttributeError:
+                        postIndex = None
+                    flag = True
+                if re.search('[Сс]е?редн.',r.decode('ibm866')) and flag:
+                    li = [x for x in r.decode('ibm866').lstrip().split()[1:13]]
+                    #li = [float(x) if re.match("^\d+?\.\d+?$", x) is not None else "" for x in r.decode('ibm866').lstrip().split()[1:13]]
+                    flag = False
+                    if postIndex:
+                        for mainKey in jsonData:
+                            if postIndex == jsonData[mainKey][0]:
+                                yield (mainKey,li,year,postIndex)
+                    else:
+                        for mainKey in jsonData:
+                            if postName.replace(' ','') in jsonData[mainKey] or postName in jsonData[mainKey]:
+                                #postName = postName.replace(' ','')
+                                yield (mainKey,li,year,postIndex)
 
 def parseXLSX(filename,year):
-    wb = openpyxl.load_workbook(filename)
-    print (filename)
+    print(filename)
     try:
-        sheet = wb.worksheets[5]
-    except IndexError:
-        for name in wb.get_sheet_names():
-            sheet = wb.get_sheet_by_name(name)
-            if re.search('[тТ]аблиц[ая] ?1.12',sheet.cell(row=1,column=1).value):break
-            else:sheet = None
+        wb = openpyxl.load_workbook(filename)
+        try:
+            sheet = wb.worksheets[5]
+            print ("PARSE ",filename,year)
+            try:
+                if re.search('ТАБЛИЦ[АЯ] ?1.12',sheet.cell(row=1,column=1).value):
+                    if not year:
+                        for index in range(1,sheet.get_highest_column() + 1):
+                            try:
+                                year = int((re.search(r'[0-9]{4}',sheet.cell(row=1,column=index).value)).group(0))
+                                print (type(year))
+                                if year:break
+                            except (AttributeError, TypeError):
+                                pass
+                            # except TypeError:
+                            #     pass
+                    print (filename)
+                else:sheet = None
+            except TypeError:
+                sheet = None
+        except IndexError:
+            for name in wb.get_sheet_names():
+                sheet = wb.get_sheet_by_name(name)
+                try:
+                    if re.search('ТАБЛИЦ[АЯ] ?1.12',sheet.cell(row=1,column=1).value):
+                        if not year:
+                            for index in range(1,sheet.get_highest_column() + 1):
+                                try:
+                                    year = int((re.search(r'[0-9]{4}',sheet.cell(row=1,column=index).value)).group(0))
+                                    if year:break
+                                except AttributeError:
+                                    pass
+                                except TypeError:
+                                    pass
+                        break
+                    else:sheet = None
+                except TypeError:
+                    sheet = None
+    except TypeError:
+        print ("Can't load_workbook..")
+        sheet = None
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+        sheet = None
+
     if sheet:
         for i in range(1,sheet.get_highest_row()+1):
             #print (sheet.cell(row=i,column=1).value)
@@ -76,8 +134,8 @@ def parseXLSX(filename,year):
                         postIndex = None
                     li = [sheet.cell(row=i+4,column=x).value for x in range(4,16) ]
                     #li = [float(sheet.cell(row=i+4,column=x).value) if re.search("\d+?\.\d+?", sheet.cell(row=i+4,column=x).value) is not None else "" for x in range(4,16) ]
-                    print (postName,postIndex)
-                    print (li)
+                    #print (postName,postIndex)
+                    #print (li)
                     if postIndex:
                         for mainKey in jsonData:
                             if postIndex == jsonData[mainKey][0]:
@@ -97,8 +155,6 @@ def updateXLS(sheetYearData, XLSfile):                       # sheetYearData  mu
     wb = openpyxl.load_workbook(XLSfile)
     for row in sheetYearData:
         sheet = wb.get_sheet_by_name(row[0])
-        # allSheetes = wb.get_sheet_names()
-        # print (allSheetes)
         for index in range(5,sheet.get_highest_row()+1):
             yearOfSheet = sheet.cell(row=index, column=1).value
             if yearOfSheet == row[2]:

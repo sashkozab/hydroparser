@@ -76,7 +76,10 @@ def write_index_year_table(indexYearPost):                      # indexYearPost 
 
 def walking(root):
     for folder in os.listdir(root):
-        folderInteger = int(folder)
+        try:
+            folderInteger = int(folder)
+        except ValueError:
+        	continue
         for dirPath, dirs, files in os.walk(os.path.join(root,folder)):
             files.sort()
             for fileSingle in files:
@@ -90,32 +93,41 @@ def walking(root):
 def parseDoc(filenameGenerator):
 	for filename,year in filenameGenerator:
 	    with open(filename, 'rb') as f:
+	    	counter = 0
+	    	mark = False
 	    	for r in f:
-	    		if " р." in r.decode('ibm866'):
-	    		    try:
-	    		        postIndex = int((re.search('[0-9]{5}',r.decode('ibm866'))).group(0))
-	    		        #print (postIndex)
-	    		    except AttributeError:
-	    		        postIndex = None
-	    		    if postIndex and postIndex in indexList:
-	    		    	continue
-	    		    else:
-	    		        postName = r.decode('ibm866')[r.decode('ibm866').index(" р.") + 1:].rstrip().replace(' ','')
-	    		        postNameTuple = tuple(postName[2:].split('-'))
-	    		        #print(repr(postNameTuple))
-	    		        yield (postNameTuple, postName, filename, postIndex, year)
-	    		elif re.search('[Кк]анал',r.decode('ibm866')):
-	    		    try:
-	    		        postIndex = int((re.search('[0-9]{5}',r.decode('ibm866'))).group(0))
-	    		    except AttributeError:
-	    		        postIndex = None
-	    		    if postIndex and postIndex in indexList:
-	    		    	continue
-	    		    elif None not in indexList and postIndex == None or None in indexList:
-	    		        postName = r.decode('ibm866')[r.decode('ibm866').index("анал") + 1:].rstrip().replace(' ','')
-	    		        postNameTuple = tuple(postName[3:].split('-'))
-	    		        #print(repr(postNameTuple))
-	    		        yield (postNameTuple, postName, filename, postIndex, year)
+	    		if not mark:
+	    		    if not re.search('[Тт]аблиц[ая] ?1.12',r.decode('ibm866')) and not re.search('[Тт]емпература вод[иы]',r.decode('ibm866')):
+	    		        counter += 1
+	    		        if counter == 4:break
+	    		        continue
+	    		    else:mark = True
+	    		else:
+	    			if " р." in r.decode('ibm866'):
+	    			    try:
+	    			        postIndex = int((re.search('[0-9]{5}',r.decode('ibm866'))).group(0))
+	    			        #print (postIndex)
+	    			    except AttributeError:
+	    			        postIndex = None
+	    			    if postIndex and postIndex in indexList:
+	    			        continue
+	    			    else:
+	    			        postName = r.decode('ibm866')[r.decode('ibm866').index(" р.") + 1:].rstrip().replace(' ','')
+	    			        postNameTuple = tuple(postName[2:].split('-'))
+	    			        #print(repr(postNameTuple))
+	    			        yield (postNameTuple, postName, filename, postIndex, year)
+	    			elif re.search('[Кк]анал',r.decode('ibm866')):
+	    			    try:
+	    			        postIndex = int((re.search('[0-9]{5}',r.decode('ibm866'))).group(0))
+	    			    except AttributeError:
+	    			        postIndex = None
+	    			    if postIndex and postIndex in indexList:
+	    			        continue
+	    			    elif None not in indexList and postIndex == None or None in indexList:
+	    			        postName = r.decode('ibm866')[r.decode('ibm866').index("анал") + 1:].rstrip().replace(' ','')
+	    			        postNameTuple = tuple(postName[3:].split('-'))
+	    			        #print(repr(postNameTuple))
+	    			        yield (postNameTuple, postName, filename, postIndex, year)
 
 def parseDocRowList(filenameGenerator):
 	for_one_year_list = []
