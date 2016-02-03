@@ -25,7 +25,7 @@ Examples:
 
 Help:
   For help using this tool, please open an issue on the Github repository:
-  https://github.com/    
+  https://github.com/sashkozab/hydroparser    
 """
 
 __version__ = "0.1.0"
@@ -39,7 +39,7 @@ def main():
     print("Executing gydroparser version {}".format(__version__))
     try:
         opts, args = getopt.getopt(argv,"htgcr:",["help","temperature","generate-conf","create-conf","ratio="])
-        print (opts)
+        #print (opts)
     except getopt.GetoptError:
         print (__doc__)
         sys.exit(2)
