@@ -30,11 +30,22 @@ Help:
 
 __version__ = "0.1.0"
 
-import sys, getopt
+import os, sys, getopt
+from subprocess import call
 from .createConfig import *
 from .parsedoc import *
 
+def enableWUC():
+    try:
+        win_unicode_console.disable()
+        sys.exit()
+    except (UnboundLocalError,NameError):
+        sys.exit()
+
 def main():
+    if os.name == 'nt':
+        import win_unicode_console
+        win_unicode_console.enable()
     argv = sys.argv[1:]
     print("Executing gydroparser version {}".format(__version__))
     try:
@@ -42,7 +53,7 @@ def main():
         #print (opts)
     except getopt.GetoptError:
         print (__doc__)
-        sys.exit(2)
+        enableWUC()
     xlsx = None
     pathToFiles = None
     jsonFile = None
@@ -53,7 +64,7 @@ def main():
     for opt, arg in opts:
         if opt in ('-h','--help'):
             print (__doc__)
-            sys.exit()
+            enableWUC()
         elif opt in ("-g", "--generate-conf"):
             g = True  
         elif opt in ("-c", "--create-conf"):
@@ -63,7 +74,7 @@ def main():
                 ratio = float(arg)
             except ValueError:
                 print ("Argument of (-r,--ratio) must be a number!")
-                sys.exit()
+                enableWUC()
         elif opt in ("-t", "--temperature"):
             t = True
     if g:
@@ -73,7 +84,7 @@ def main():
             generate_file(jsonFile,xlsx)
         else:
             print("File has not been chosen! Exit.")
-            sys.exit()
+            enableWUC()
     if c:
         if not jsonFile:
             opts = {'filetypes' : [('JSON files','.json')], 'title' : 'Select JSON configuration file you wish to work with'}
@@ -82,7 +93,7 @@ def main():
             jsonData = load_json_conf(jsonFile)
         except TypeError:
             print ("JSON file has not been chosen. Exit.")
-            sys.exit()
+            enableWUC()
         pathToFiles = choose_path()
         if pathToFiles:
             indexList = [jsonData[x][0] for x in jsonData]
@@ -103,12 +114,12 @@ def main():
             jsonData = load_json_conf(jsonFile)
         except TypeError:
             print ("JSON file has not been chosen. Exit.")
-            sys.exit()
+            enableWUC()
         if not xlsx:
             xlsx = choose_file()
             if not xlsx:
                 print ("XLSX file has not been chosen.Exit.")
-                sys.exit()
+                enableWUC()
         if not pathToFiles:
             pathToFiles = choose_path()
         if pathToFiles:
@@ -119,7 +130,7 @@ def main():
             updateXLS(walkingDead(pathToFiles, temperatureObject),xlsx)
         else:
             print ("Path to files has not been choosen.Exit.")
-
+    enableWUC()
    
 
 if __name__ == "__main__":
