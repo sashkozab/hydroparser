@@ -19,65 +19,53 @@ def load_json_conf(confFile):
 
 def seeDiff(jsonData,listOfPosts,ratioOfDiff=2.55):
     for postConvertFrom in listOfPosts:
-        #print("!!!!!!",type(postConvertFrom),repr(postConvertFrom))  #('Деркул', 'смтБiловодськ')
+        Flag = True
         for sheet in jsonData:
             postNameInSheetOrigin = jsonData[sheet][1]
             sheetTuple = tuple(re.sub(r'[-_]',' ',sheet).split())
-            #print(type(sheet),repr(sheet))         #<class 'str'> 'КазТор-Слов'
             try:
                 postNameInSheet = re.sub(r'[-_]',' ',postNameInSheetOrigin[postNameInSheetOrigin.index("р.") + 2:]).split()
             except ValueError:
-                #print("Exception!!!!!!!!!",sheet,postNameInSheet)
                 postNameInSheet = re.sub(r'[-_]',' ',postNameInSheetOrigin).split()
-                #print(postNameInSheet)
-            #print (repr(postNameInSheet))                #'КазеннийТорець-м.Словянськ'
             rmList = []
             rnList = []
             for i,chunk in enumerate(postConvertFrom[0]):
                 try:
                     m0 = SequenceMatcher(None,chunk,postNameInSheet[i])
-                    #print(chunk,postNameInSheet)
                     rmList.append(m0.ratio())
                 except IndexError:
                     pass
                 try:
                     n0 = SequenceMatcher(None,chunk,sheetTuple[i])
-                    #print("CHUNK###",chunk,sheetTuple)
                     rnList.append(n0.ratio())
                 except IndexError:
                     pass
-            #print(rmList,rnList)
             rn = sum(rnList)
             rm = sum(rmList)
             mainRatio = rm + rn
-            if mainRatio > 2:
-                print(postConvertFrom,"------","===>",mainRatio, postNameInSheetOrigin)    #('Деркул', 'смтБiловодськ') ------ ===> 0.0
+            # if mainRatio > 2:
+            #     print(postConvertFrom,"------","===>",mainRatio, postNameInSheetOrigin)    #('Деркул', 'смтБiловодськ') ------ ===> 0.0
             if mainRatio > ratioOfDiff:
-                print(("RATIO IS ", mainRatio, sheet, postConvertFrom[1]))
+                # print(("RATIO IS ", mainRatio, sheet, postConvertFrom[1]))
+                Flag = False
                 yield (sheet, postNameInSheetOrigin ,postConvertFrom[1], postConvertFrom[2], postConvertFrom[3])
+        if Flag:
+            print ("-----------------------------------------------")
+            print ("Not incuded post names:    {0}\n<=======>{1}".format(postConvertFrom[1],postConvertFrom[2]))
+            print ("-----------------------------------------------")
 
 def write_posts_names_to_config(sheetesAndPosts, jsonData, jsonFile):              # sheetesAndPosts varieble must be a generator
     for pair in sheetesAndPosts:
     	if pair[2] not in jsonData[pair[0]]:
     		jsonData[pair[0]].append(pair[2])
-    		print(pair[2],pair[3])
+    		#print(pair[2],pair[3])
     with open(jsonFile,"w") as f:
     	#print(jsonData)
     	json.dump(jsonData, f, ensure_ascii=False, indent=4)
-    	for data in jsonData:
-    		print(data)
-    	print(len(jsonData))
+    	# for data in jsonData:
+    	# 	print(data)
+    	# print(len(jsonData))
 
-def write_index_year_table(indexYearPost):                      # indexYearPost must be a generator
-    #for i in indexYearPost:print(i)
-    with open("indexYearPost.csv","w",newline='') as csvfile:
-    	headline = ['year'] + [x for x in range(1,46)]
-    	writer = csv.writer(csvfile,delimiter=',', lineterminator='\n')
-    	writer.writerow(headline)
-    	# for i in indexYearPost:
-    	#     writer.writerow(i)
-    	    #print(i)
-    	writer.writerows(indexYearPost)
 
 def walking(root):
     for folder in os.listdir(root):
@@ -89,11 +77,10 @@ def walking(root):
             files.sort()
             for fileSingle in files:
                 if fileSingle[-3:] == 'xls' or fileSingle[-4:] == 'xlsx':
-                    print ('---PASS',fileSingle)
+                    #print ('---PASS',fileSingle)
+                    pass
                 else:
-                    #print(os.path.join(dirPath,fileSingle),folderInteger)
                     yield (os.path.join(dirPath,fileSingle),folderInteger)
-            #print(dirPath)
 
 class createConf(pod):
 
@@ -127,7 +114,7 @@ class createConf(pod):
                             elif not postIndex:
                                 postName = r.decode('ibm866')[r.decode('ibm866').index(" р.") + 1:].rstrip().replace(' ','')
                                 postNameTuple = tuple(postName[2:].split('-'))
-                                print("No index in ", filename, postName)
+                                #print("No index in post name,file----> ", postName,filename)
                                 yield (postNameTuple, postName, filename, postIndex, year)
                         elif re.search('[Кк]анал',r.decode('ibm866')):
                             try:
@@ -139,7 +126,7 @@ class createConf(pod):
                             elif not postIndex:                                                         # None not in self.indexList and postIndex == None or None in self.indexList:
                                 postName = r.decode('ibm866')[r.decode('ibm866').index("анал") + 1:].rstrip().replace(' ','')
                                 postNameTuple = tuple(postName[3:].split('-'))
-                                print("No index in ", filename, postName)
+                                #print("No index in post name,file----> ", postName,filename)
                                 yield (postNameTuple, postName, filename, postIndex, year)
 
 def parseDocRowList(filenameGenerator):
@@ -178,12 +165,12 @@ def parseDocRowList(filenameGenerator):
 	    		count += 1
 	    #yield for_one_year_list
 
-def generate_file(confFile,XLS):
+def generate_file(confFile,XLS,isIncludeNoneIndex=False):
     listSHeetes = input("Please,choose massive of sheetes you want to work with.\nFor example,type: [5:11] or [5:] or [:11]  or just press ENTER to work with all sheetes.")
     wb = openpyxl.load_workbook(XLS)
     allSheetes = eval("wb.get_sheet_names()" + listSHeetes)
     print(allSheetes)
-    print(len(allSheetes))
+    print("\nTotal number of sheetes you've chosen = {}\n".format(len(allSheetes)))
     with open(confFile,"w") as f:
         dataDict = {}
         for sheet in allSheetes:
@@ -193,11 +180,15 @@ def generate_file(confFile,XLS):
                 index = int(index_obj.group(0))
                 chapterOfSheet = str(sht.cell(row=2,column=1).value)[index_obj.end():].rstrip().replace(' ','')
             except AttributeError:
-                index = None
-                chapterOfSheet = str(sht.cell(row=2,column=1).value).strip().replace(' ','')
+                if isIncludeNoneIndex:
+                    index = None
+                    chapterOfSheet = str(sht.cell(row=2,column=1).value).strip().replace(' ','')
+                else:
+                    continue
             print(chapterOfSheet)
             oneSheet = {sheet:[index, chapterOfSheet]}
             dataDict.update(oneSheet)
+        print("\nNumber of names to work with = {}".format(len(dataDict)))
         json.dump(dataDict, f, ensure_ascii=False, indent=4)
 
 
