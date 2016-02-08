@@ -224,7 +224,7 @@ def updateXLS(sheetYearData, XLSfile):                       # sheetYearData  mu
                     try:
                         sheet.cell(row=index, column=i+2).value = float(row[1][i])
                     except ValueError:
-                        sheet.cell(row=index, column=i+2).value = row[1][i]
+                        sheet.cell(row=index, column=i+2).value = row[1][i].replace('-','')
     wb.save(XLSfile)
 
 
