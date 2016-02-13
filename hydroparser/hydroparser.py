@@ -35,7 +35,7 @@ Help:
   https://github.com/sashkozab/hydroparser    
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 import os, sys, getopt
 from subprocess import call
