@@ -16,12 +16,19 @@ Options:
 Convertion options:
   -t, --temperature      Search in data base the temperature of water and add actual data to exist .xlsx file with excel sheets.
 
+Build chart options:
+  -b, --build-charts     Build charts inside xlsx file.
+
 
 Examples:
   hydroparser -g                    Generate only configuration file.
   hydroparser -gc --ratio 2.6       Generate and add headers to configuration file with ratio equal to 2.6
   hydroparser -gct                  Generate,add headers to configuration file and parse temperature of water in data base with adding to .xlsx main file.
   hydroparser -h                    Show this screen.
+  hydroparser -gctb                 Generate,add headers to configuration file and parse temperature of water in data base with adding to .xlsx main file.
+                                    And finally, build charts in separate xlsx file.
+  hydroparser -b                    Just build charts in xlsx file.
+
 
 Help:
   For help using this tool, please open an issue on the Github repository:
@@ -34,8 +41,9 @@ import os, sys, getopt
 from subprocess import call
 from .createConfig import *
 from .parsedoc import *
+from .chartBuilder import *
 
-def enableWUC():
+def disableWUC():
     try:
         win_unicode_console.disable()
         sys.exit()
@@ -49,11 +57,11 @@ def main():
     argv = sys.argv[1:]
     print("Executing gydroparser version {}".format(__version__))
     try:
-        opts, args = getopt.getopt(argv,"htgcr:",["help","temperature","generate-conf","create-conf","ratio="])
+        opts, args = getopt.getopt(argv,"htgcr:b",["help","temperature","generate-conf","create-conf","ratio=","build-charts"])
         #print (opts)
     except getopt.GetoptError:
         print (__doc__)
-        enableWUC()
+        disableWUC()
     xlsx = None
     pathToFiles = None
     jsonFile = None
@@ -61,10 +69,11 @@ def main():
     c = False
     ratio = False
     t = False
+    b = False
     for opt, arg in opts:
         if opt in ('-h','--help'):
             print (__doc__)
-            enableWUC()
+            disableWUC()
         elif opt in ("-g", "--generate-conf"):
             g = True  
         elif opt in ("-c", "--create-conf"):
@@ -74,17 +83,19 @@ def main():
                 ratio = float(arg)
             except ValueError:
                 print ("Argument of (-r,--ratio) must be a number!")
-                enableWUC()
+                disableWUC()
         elif opt in ("-t", "--temperature"):
             t = True
+        elif opt in ("-b", "--build-charts"):
+            b = True
     if g:
         xlsx = choose_file()
         if xlsx:
-            jsonFile = xlsx[:-5] + "_configure" + ".json"
+            jsonFile = xlsx[:-5] + "_configure.json"
             generate_file(jsonFile,xlsx)
         else:
             print("File has not been chosen! Exit.")
-            enableWUC()
+            disableWUC()
     if c:
         if not jsonFile:
             opts = {'filetypes' : [('JSON files','.json')], 'title' : 'Select JSON configuration file you wish to work with'}
@@ -93,7 +104,7 @@ def main():
             jsonData = load_json_conf(jsonFile)
         except TypeError:
             print ("JSON file has not been chosen. Exit.")
-            enableWUC()
+            disableWUC()
         pathToFiles = choose_path()
         if pathToFiles:
             indexList = [jsonData[x][0] for x in jsonData]
@@ -114,12 +125,12 @@ def main():
             jsonData = load_json_conf(jsonFile)
         except TypeError:
             print ("JSON file has not been chosen. Exit.")
-            enableWUC()
+            disableWUC()
         if not xlsx:
             xlsx = choose_file()
             if not xlsx:
                 print ("XLSX file has not been chosen.Exit.")
-                enableWUC()
+                disableWUC()
         if not pathToFiles:
             pathToFiles = choose_path()
         if pathToFiles:
@@ -130,7 +141,34 @@ def main():
             updateXLS(walkingDead(pathToFiles, temperatureObject),xlsx)
         else:
             print ("Path to files has not been choosen.Exit.")
-    enableWUC()
+    if b:
+        if not xlsx:
+            xlsx = choose_file()
+            if not xlsx:
+                print ("XLSX file has not been chosen.Exit.")
+                disableWUC()
+        outputFile = Charter(xlsx)
+        outputFile.set_range_of_sheets()
+        genFile = outputFile.parseXLSXfile()
+        prepareForMethods = outputFile.prepareToMethod(genFile)
+        listOfDataHeader = []
+        listOfSumCurvesHeader = []
+        listOfChronology = []
+        for f in prepareForMethods:
+            riznIntKr = GydroGenMethod(f[1])
+            rizn = riznIntKr.rizn_inter_kruvi()
+            listOfDataHeader.append((f[0],rizn))
+            sumCurve = riznIntKr.sumCurves()
+            listOfSumCurvesHeader.append((f[0],sumCurve))
+            listOfChronology.append((f[0],f[1]))
+        years = outputFile.listOfYears
+        indexOfYears = range(len(years))
+        MethodRizInt = outputFile.prepareToChart(years,listOfDataHeader)
+        MethodSumCurves = outputFile.prepareToChart(indexOfYears,listOfSumCurvesHeader)
+        MethodChronology = outputFile.prepareToChart(years,listOfChronology)
+        methodsList = [(MethodRizInt,"Rizn_Int_Kruvi",False),(MethodSumCurves,"Sum Curves",True),(MethodChronology,"Chronology",True)]
+        createCharts(methodsList,xlsx)
+    disableWUC()
    
 
 if __name__ == "__main__":
