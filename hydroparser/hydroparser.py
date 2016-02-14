@@ -35,13 +35,13 @@ Help:
   https://github.com/sashkozab/hydroparser    
 """
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 import os, sys, getopt
 from subprocess import call
 from .createConfig import *
 from .parsedoc import *
-from .chartBuilder import *
+from .chartBuilder import build_charts
 
 def disableWUC():
     try:
@@ -147,27 +147,8 @@ def main():
             if not xlsx:
                 print ("XLSX file has not been chosen.Exit.")
                 disableWUC()
-        outputFile = Charter(xlsx)
-        outputFile.set_range_of_sheets()
-        genFile = outputFile.parseXLSXfile()
-        prepareForMethods = outputFile.prepareToMethod(genFile)
-        listOfDataHeader = []
-        listOfSumCurvesHeader = []
-        listOfChronology = []
-        for f in prepareForMethods:
-            riznIntKr = GydroGenMethod(f[1])
-            rizn = riznIntKr.rizn_inter_kruvi()
-            listOfDataHeader.append((f[0],rizn))
-            sumCurve = riznIntKr.sumCurves()
-            listOfSumCurvesHeader.append((f[0],sumCurve))
-            listOfChronology.append((f[0],f[1]))
-        years = outputFile.listOfYears
-        indexOfYears = range(len(years))
-        MethodRizInt = outputFile.prepareToChart(years,listOfDataHeader)
-        MethodSumCurves = outputFile.prepareToChart(indexOfYears,listOfSumCurvesHeader)
-        MethodChronology = outputFile.prepareToChart(years,listOfChronology)
-        methodsList = [(MethodRizInt,"Rizn_Int_Kruvi",False),(MethodSumCurves,"Sum Curves",True),(MethodChronology,"Chronology",True)]
-        createCharts(methodsList,xlsx)
+        build_charts(xlsx)
+        print ("Charts have been build successfully! Exit.")
     disableWUC()
    
 

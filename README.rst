@@ -19,12 +19,12 @@ The application can be run right from the source directory, in two different way
 1. Treating the hydroparser directory as a package and as the main script:
 
 $ python -m hydroparser arg1 arg2
-Executing hydroparser version 0.1.0.
+Executing hydroparser version 0.1.2.
 
 2. Using the hydroparser-runner.py wrapper:
 
 $ ./hydroparser-runner.py arg1 arg2
-Executing hydroparser version 0.1.0.
+Executing hydroparser version 0.1.2.
 
 Installation sets up hydroparser command
 
@@ -34,11 +34,11 @@ $ hydroparser
 bash: hydroparser: command not found
 
 1. Installation right from the source tree:
-Go to the root folder of this progect,where is setup.py and:
+Go to the root folder of this project,where is setup.py and:
 
 $ python setup.py install
 
-2 . Instalation from github repository:
+2 . Installation from github repository:
 
 #install by branch names
 $ pip install git+git://github.com/sashkozab/hydroparser.git@master#egg=hydroparser
@@ -62,6 +62,4 @@ https://pip.pypa.io/en/latest/reference/pip_install/#vcs-support
 Now, the hydroparser command is available:
 
 $ hydroparser arg1 arg2
-Executing hydroparser version 0.1.0.
-
-
+Executing hydroparser version 0.1.2.
