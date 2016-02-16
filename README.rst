@@ -63,3 +63,11 @@ Now, the hydroparser command is available:
 
 $ hydroparser arg1 arg2
 Executing hydroparser version 0.1.2.
+
+Atention
+======== 
+
+In some cases,for example you have Windows,you can have problem with installing NumPy library. Becaouse, you need to have Microsoft Visual C++ Compiler for Python 3.4
+So you can install Microsoft Visual C++ 2010 Express, download here http://download.microsoft.com/download/1/D/9/1D9A6C0E..
+
+or you can do preinstall numpy module from wheel: download it from http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy and install via pip command from your local machine. Remember,you need version for python 3.
