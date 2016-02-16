@@ -15,7 +15,8 @@ A LONGER DESCRIPTION OF YOUR PROJECT GOES HERE...
 Flexible invocation
 =================== 
 
-## The application can be run right from the source directory, in two different ways:
+##  The application can be run right from the source directory, in two different ways:
+
 
 # 1. Treating the hydroparser directory as a package and as the main script:
 
@@ -62,8 +63,8 @@ https://pip.pypa.io/en/latest/reference/pip_install/#vcs-support
 
 # Now, the hydroparser command is available:
 
-> $ hydroparser arg1 arg2
-> Executing hydroparser version 0.1.2.
+>  $ hydroparser arg1 arg2
+>  Executing hydroparser version 0.1.2.
 
 Additional instruction
 =================
