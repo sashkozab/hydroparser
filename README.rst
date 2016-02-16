@@ -45,11 +45,11 @@ Situation before installation:
 
 # also you can install version you want
 
-$ pip install git+git://github.com/sashkozab/hydroparser.git@v0.1.3#egg=hydroparser
+    $ pip install git+git://github.com/sashkozab/hydroparser.git@v0.1.3#egg=hydroparser
 
 # or by commit
 
->    pip install git+git://github.com/sashkozab/hydroparser.git@dbbd99ad1877c9b2c409b9ec8eebe023bc87f40c#egg=hydroparser
+    pip install git+git://github.com/sashkozab/hydroparser.git@dbbd99ad1877c9b2c409b9ec8eebe023bc87f40c#egg=hydroparser
 
 # or simple just
 
