@@ -1,6 +1,5 @@
 ﻿openpyxl
 win-unicode-console
 xlsxwriter
-numpy
 
 
