@@ -6,6 +6,7 @@ hydroparser
 Usage: hydroparser [OPTION]...[ARGUMENT]...
 
 Options:
+  -v, --version          Print current version of this aplication.
   -h, --help             Show this usage options.
   -g, --generate-conf    Generate configuration json file with list of sheet,postname,index.
   -c, --create-conf      Add headers that don't have post index to exist configuration json file. Always check configuration file after this!!
@@ -57,7 +58,7 @@ def main():
     argv = sys.argv[1:]
     print("Executing gydroparser version {}".format(__version__))
     try:
-        opts, args = getopt.getopt(argv,"htgcr:b",["help","temperature","generate-conf","create-conf","ratio=","build-charts"])
+        opts, args = getopt.getopt(argv,"vhtgcr:b",["version","help","temperature","generate-conf","create-conf","ratio=","build-charts"])
         #print (opts)
     except getopt.GetoptError:
         print (__doc__)
@@ -73,6 +74,9 @@ def main():
     for opt, arg in opts:
         if opt in ('-h','--help'):
             print (__doc__)
+            disableWUC()
+        if opt in ('-v', '--version'):
+            print ("gydroparser version is {}".format(__version__))
             disableWUC()
         elif opt in ("-g", "--generate-conf"):
             g = True  
