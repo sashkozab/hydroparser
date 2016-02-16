@@ -41,25 +41,25 @@ Situation before installation:
 
 # install by branch names
 
- $ pip install git+git://github.com/sashkozab/hydroparser.git@master#egg=hydroparser
+     pip install git+git://github.com/sashkozab/hydroparser.git@master#egg=hydroparser
 
 # also you can install version you want
 
-    $ pip install git+git://github.com/sashkozab/hydroparser.git@v0.1.3#egg=hydroparser
+     pip install git+git://github.com/sashkozab/hydroparser.git@v0.1.3#egg=hydroparser
 
 # or by commit
 
-    pip install git+git://github.com/sashkozab/hydroparser.git@dbbd99ad1877c9b2c409b9ec8eebe023bc87f40c#egg=hydroparser
+     pip install git+git://github.com/sashkozab/hydroparser.git@dbbd99ad1877c9b2c409b9ec8eebe023bc87f40c#egg=hydroparser
 
 # or simple just
 
-    pip install git+git://github.com/sashkozab/hydroparser.git@#egg=hydroparser
+     pip install git+git://github.com/sashkozab/hydroparser.git@#egg=hydroparser
 
 # Here are another supported forms by git:
 
-   pip install git+ssh://github.com/sashkozab/hydroparser.git@#egg=hydroparser
+     pip install git+ssh://github.com/sashkozab/hydroparser.git@#egg=hydroparser
 
-   pip install git+https://github.com/sashkozab/hydroparser.git@#egg=hydroparser
+     pip install git+https://github.com/sashkozab/hydroparser.git@#egg=hydroparser
 
 
 More information about installing by pip from git and other you can find there: https://pip.pypa.io/en/latest/reference/pip_install/#vcs-support
