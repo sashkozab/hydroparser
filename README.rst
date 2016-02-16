@@ -32,8 +32,8 @@ Flexible invocation
 
 Situation before installation:
 
-> $ hydroparser
-> bash: hydroparser: command not found
+   $ hydroparser
+    bash: hydroparser: command not found
 
 # 1. Installation right from the source tree:
 Go to the root folder of this project,where is setup.py and:
