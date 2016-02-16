@@ -78,10 +78,4 @@ https://pip.pypa.io/en/latest/reference/pip_install/#vcs-support
     $ hydroparser arg1 arg2
     Executing hydroparser version 0.1.2.
 
-Additional instruction
-=================
-
-In some cases,for example you have Windows,you can have problem with installing NumPy library. Becaouse, you need to have Microsoft Visual C++ Compiler for Python 3.4
-So you can install Microsoft Visual C++ 2010 Express, download here http://download.microsoft.com/download/1/D/9/1D9A6C0E..
->>>>>>> c33323d9d4c7c29d31631088acafb9fa5ccb5cc9
 
