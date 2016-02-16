@@ -23,7 +23,7 @@ with open("README.rst", "rb") as f:
 setup(
     name = "hydroparser",
     packages = ["hydroparser"],
-    install_requires = ['openpyxl','win-unicode-console','xlsxwriter','numpy'],
+    install_requires = ['openpyxl','win-unicode-console','xlsxwriter'],
     classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha

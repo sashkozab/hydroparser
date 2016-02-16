@@ -4,7 +4,8 @@
 import re
 import openpyxl
 import xlsxwriter
-import numpy as np
+import math
+import statistics
 
 class Charter:
     def __init__(self,xlsxFile):
@@ -39,7 +40,7 @@ class Charter:
                         number = 0
                         gutIt = True
                         try:
-                            avarege = np.mean(np.array([float(sheet.cell(row=i,column=x).value) for x in range(2,14)]))
+                            avarege = statistics.mean([float(sheet.cell(row=i,column=x).value) for x in range(2,14)])
                             findFirstAvarege = True
                         except (TypeError,ValueError):
                             avarege = None 
@@ -100,7 +101,7 @@ def createCharts(methodsList,xlsxFile):
         worksheet.write_row('A1', headings, bold)
         for i,valueList in enumerate(data):
             for r,value in enumerate(valueList):
-                if isinstance(value,(float,int)) and not np.isnan(value):
+                if isinstance(value,(float,int)) and not math.isnan(value):
                     worksheet.write(r + 1, i, value)
         # Create a new chart object. In this case an embedded chart.
         chart1 = workbook.add_chart({'type': 'line'})
@@ -166,11 +167,10 @@ class GydroGenMethod:
 
     def rizn_inter_kruvi(self):
         calculate_list = []
-        Q_array = np.array(self.Q)
         Qfllist = [x for x in self.Q if isinstance(x, float)]
         lenQfllist = len(Qfllist)
-        Qav = np.mean(Qfllist)
-        sumQ = ((Qfllist - Qav)**2).sum()
+        Qav = statistics.mean(Qfllist)
+        sumQ = math.fsum([(Qf - Qav)**2 for Qf in Qfllist])
         lastValue = None
         for i,q in enumerate(self.Q):
             if not lastValue and q:
@@ -182,9 +182,8 @@ class GydroGenMethod:
             else:
                 calculate_list.append(q/Qav - 1 + lastValue)
                 lastValue += q/Qav - 1
-        Ki_array = np.array(calculate_list)
-        y = np.sqrt(sumQ/(lenQfllist-1))/Qav
-        rizn_int_kr = [float("{0:.2f}".format(x/y)) if x is not None else None for x in Ki_array]
+        y = math.sqrt(sumQ/(lenQfllist-1))/Qav
+        rizn_int_kr = [float("{0:.2f}".format(x/y)) if x is not None else None for x in calculate_list]
         return rizn_int_kr
 
     def sumCurves(self):
