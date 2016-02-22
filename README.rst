@@ -4,7 +4,7 @@ hydroparser
 
 
 This is a little project for hydrology science. The goal is to parse some information, that we need, from xlsx,doc,txt and similar formats to
-excel table preparing for this data. And, we have automatically build charts option inside another excel file.
+excel table prepared for this data. And, we have automatically build charts option inside another excel file.
 
 
 Description
