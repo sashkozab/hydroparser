@@ -3,13 +3,14 @@ hydroparser
 ===========
 
 
-Add a short description here!
+This is a little project for hydrology science. The goal is to parse some information, that we need, from xlsx,doc,txt and similar formats to
+excel table preparing for this data. And, we have automatically build charts option inside another excel file.
 
 
 Description
 ===========
 
-A LONGER DESCRIPTION OF YOUR PROJECT GOES HERE...
+A LONGER DESCRIPTION WILL BE HERE LATER...
 
 
 Flexible invocation
