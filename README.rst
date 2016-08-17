@@ -22,9 +22,9 @@ Flexible invocation
 
 $ python -m hydroparser arg1 arg2 Executing hydroparser version 0.1.3.
 
-# 2. Using the hydroparser-runner.py wrapper:
+# 2. Using the hydroparser_runner.py wrapper:
 
-$ ./hydroparser-runner.py arg1 arg2 Executing hydroparser version 0.1.3.
+$ ./hydroparser_runner.py arg1 arg2 Executing hydroparser version 0.1.3.
 
 
 ## Installation sets up hydroparser command

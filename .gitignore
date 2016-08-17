@@ -39,3 +39,11 @@ docs/api/*
 docs/_build/*
 cover/*
 MANIFEST
+
+*.xlsx
+
+*.sublime-project
+*.sublime-workspace
+*~lock*
+*.json
+

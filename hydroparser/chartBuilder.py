@@ -30,7 +30,7 @@ class Charter:
         for sheetName in self.setSheetes:
             sheet = wb.get_sheet_by_name(sheetName)
             sheetDict = {}
-            highestrow = sheet.get_highest_row()
+            highestrow = sheet.max_row
             gutIt = False
             findFirstAvarege = False
             for i in range(4,highestrow+1):
