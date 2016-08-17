@@ -68,3 +68,40 @@ More information about installing by pip from git and other you can find there: 
 # Now, the hydroparser command is available:
 
    $ hydroparser arg1 arg2 > Executing hydroparser version 0.1.3.
+
+
+
+Short Usage
+===========
+
+Usage: hydroparser [OPTION]...[ARGUMENT]...
+
+Options:
+  -v, --version          Print current version of this aplication.
+  -h, --help             Show this usage options.
+  -g, --generate-conf    Generate configuration json file with list of sheet,postname,index.
+  -c, --create-conf      Add headers that don't have post index to exist configuration json file. Always check configuration file after this!!
+  -r, --ratio=NUMBER     This option for select words difference ratio,just needed in case when some post indexes does not exist.
+                         It is addition for (-c,--create-conf) option.DEFOULT value is 2.55. Be careful to change it.
+                         Be cautios to check configuration json file after this!
+
+Convertion options:
+  -t, --temperature      Search in data base the temperature of water and add actual data to exist .xlsx file with excel sheets.
+
+Build chart options:
+  -b, --build-charts     Build charts inside xlsx file.
+
+
+Examples:
+  hydroparser -g                    Generate only configuration file.
+  hydroparser -gc --ratio 2.6       Generate and add headers to configuration file with ratio equal to 2.6
+  hydroparser -gct                  Generate,add headers to configuration file and parse temperature of water in data base with adding to .xlsx main file.
+  hydroparser -h                    Show this screen.
+  hydroparser -gctb                 Generate,add headers to configuration file and parse temperature of water in data base with adding to .xlsx main file.
+                                    And finally, build charts in separate xlsx file.
+  hydroparser -b                    Just build charts in xlsx file.
+
+
+Help:
+  For help using this tool, please open an issue on the Github repository:
+  https://github.com/sashkozab/hydroparser 
